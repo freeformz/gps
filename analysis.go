@@ -296,7 +296,15 @@ type LocalImportsError struct {
 }
 
 func (e *LocalImportsError) Error() string {
-	return fmt.Sprintf("import path %s had problematic local imports", e.Dir)
+	switch len(e.LocalImports) {
+	case 0:
+		// shouldn't be possible, but just cover the case
+		return fmt.Sprintf("import path %s had bad local imports", e.ImportPath)
+	case 1:
+		return fmt.Sprintf("import path %s had a local import: %q", e.ImportPath, e.LocalImports[0])
+	default:
+		return fmt.Sprintf("import path %s had local imports: %q", e.ImportPath, strings.Join(e.LocalImports, "\", \""))
+	}
 }
 
 func readFileBuildTags(fp string) ([]string, error) {
